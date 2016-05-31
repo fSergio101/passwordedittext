@@ -1,22 +1,30 @@
 package us.gigigogreenlabs.passwordedittext;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
-
+import android.widget.Toast;
+import com.example.PassValidator;
+import com.example.Validator;
 
 /**
  * Created by josemoralejo on 19/5/15.
  */
-public class ShowHidePasswordView  extends EditText{
+public class ShowHidePasswordView  extends EditText {
 
     private static final int SHOW_TYPE_ON_CLICK = 0;
     private static final int SHOW_TYPE_LONG_PRESS = 1;
+    private Validator passValidator;
     private int imgNotSecure = android.R.drawable.ic_partial_secure;
     private int imgSecure = android.R.drawable.ic_secure;
 
@@ -42,6 +50,7 @@ public class ShowHidePasswordView  extends EditText{
         loadAttributes(attrs);
         setListeners();
         performHidePassword();
+        addTextChangedListener(textWatcher);
     }
 
     private void initView(){
@@ -110,7 +119,7 @@ public class ShowHidePasswordView  extends EditText{
 
     };
 
-    private void performHidePassword() {
+    @TargetApi(Build.VERSION_CODES.CUPCAKE) private void performHidePassword() {
         this.setCompoundDrawablesWithIntrinsicBounds(0, 0, imgSecure, 0);
         this.setTransformationMethod(new PasswordTransformationMethod());
         this.setSelection(this.getText().length());
@@ -121,5 +130,22 @@ public class ShowHidePasswordView  extends EditText{
         this.setTransformationMethod(null);
         this.setSelection(this.getText().length());
     }
+
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override public void afterTextChanged(Editable s) {
+            passValidator = new PassValidator(s.toString());
+            if (!passValidator.validate()){
+                Toast.makeText(getContext(), "Pass is Wrong", Toast.LENGTH_LONG).show();
+            }
+        }
+    };
 
 }
